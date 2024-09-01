@@ -1,21 +1,59 @@
 #include <SFML/Graphics.hpp>
 
-int main()
+void handle_input(sf::RenderWindow &window)
 {
-    auto window = sf::RenderWindow{ { 1920u, 1080u }, "CMake SFML Project" };
-    window.setFramerateLimit(144);
-
-    while (window.isOpen())
+    // Handle input
+    sf::Event event;
+    while (window.pollEvent(event))
     {
-        for (auto event = sf::Event{}; window.pollEvent(event);)
+        switch (event.type)
         {
-            if (event.type == sf::Event::Closed)
+        case sf::Event::Closed:
+            window.close();
+            break;
+
+        case sf::Event::KeyPressed:
+            if (event.key.code == sf::Keyboard::Space)
+            {
+                window.setTitle("Space pressed");
+            }
+            break;
+
+        case sf::Event::EventType::KeyReleased:
+            if (event.key.code == sf::Keyboard::Space)
+            {
+                window.setTitle("Space released");
+            }
+            else if (event.key.code == sf::Keyboard::Escape)
             {
                 window.close();
             }
-        }
+            break;
 
-        window.clear();
+        default:
+            break;
+        }
+    }
+}
+
+void update_frame(sf::RenderWindow& window)
+{
+    window.clear(sf::Color::Black);
+}
+
+int main()
+{
+    sf::RenderWindow window(sf::VideoMode(300, 200), "The title");
+
+    // Game loop
+    while (window.isOpen())
+    {
+        handle_input(window);
+
+        update_frame(window);
+
         window.display();
     }
+
+    return 0;
 }

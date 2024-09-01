@@ -1,89 +1,61 @@
 #include <iostream>
-#include <SFML/Graphics.hpp>
 
-void handle_input(sf::RenderWindow &window)
-{
-    // Handle input
-    sf::Event event;
-    while (window.pollEvent(event))
-    {
-        switch (event.type)
-        {
-        case sf::Event::Closed:
-            window.close();
-            break;
+#include "SFML/Graphics.hpp"
 
-        case sf::Event::KeyPressed:
-            if (event.key.code == sf::Keyboard::Space)
-            {
-                window.setTitle("Space pressed");
-            }
-            break;
-
-        case sf::Event::EventType::KeyReleased:
-            if (event.key.code == sf::Keyboard::Space)
-            {
-                window.setTitle("Space released");
-            }
-            else if (event.key.code == sf::Keyboard::Escape)
-            {
-                window.close();
-            }
-            break;
-
-        default:
-            break;
-        }
-    }
-}
-
-void init_shape(sf::RectangleShape& shape, sf::Vector2f const&pos, sf::Color const& color)
-{
-    shape.setFillColor(color);
-    shape.setPosition(pos);
-    shape.setOrigin(shape.getSize() * 0.5f);
-}
+// class Pixel : sf::Vertex
+// {
+//     Pixel(sf::Vector2f pos, sf::Color color)
+//     {
+//         // sf::Vertex(color, pos);
+//     }
+// };
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(480, 180), "The title");
+    sf::RenderWindow window(sf::VideoMode(400, 240), "Test Window");
     window.setFramerateLimit(60);
 
-    sf::Vector2f startPos = sf::Vector2f(50, 50);
-    sf::RectangleShape playerRect(sf::Vector2f(50, 50));
-    init_shape(playerRect, startPos, sf::Color::Green);
-    sf::RectangleShape targetRect(sf::Vector2f(50, 50));
-    init_shape(targetRect, sf::Vector2f(400, 50), sf::Color::Blue);
-    sf::RectangleShape badRect(sf::Vector2f(50, 100));
-    init_shape(badRect, sf::Vector2f(250, 50), sf::Color::Red);
+    sf::VertexArray pointmap(sf::Points, 400 * 240);
+    std::vector<sf::Vertex> pixels;
 
-
-    // Game loop
-    while (window.isOpen())
+    for (uint32_t i = 0; i < 400 * 240; i++)
     {
-        // Input handling
-        handle_input(window);
-
-        // Update frame
-        playerRect.move(1, 0);
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
-            playerRect.move(0, 1);
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
-            playerRect.move(0, -1);
-
-        if (playerRect.getGlobalBounds().intersects((targetRect.getGlobalBounds())))
-            window.close();
-        if (playerRect.getGlobalBounds().intersects((badRect.getGlobalBounds())))
-            playerRect.setPosition(startPos);
-
-        // Render frame
-        window.clear(sf::Color::Black);
-        window.draw(playerRect);
-        window.draw(targetRect);
-        window.draw(badRect);
-
-        window.display();
+        // sf::Vertex px(sf::Vector2f(i % 400, i / 400), i % 2 ? sf::Color::Green : sf::Color::Blue);
+        // pixels.push_back(px);
+        pointmap[i].position = sf::Vector2f(i % 400, i / 400);
+        if (i % 2) pointmap[i].color = sf::Color::Green;
+        else pointmap[i].color = sf::Color::Blue;
     }
 
+    while (window.isOpen())
+    {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            switch (event.type)
+            {
+            case sf::Event::Closed:
+                window.close();
+                break;
+            case sf::Event::MouseButtonPressed:
+            {
+                auto mp = sf::Mouse::getPosition(window);
+                std::cout << "Vec " << mp.x << "," << mp.y << "\n";
+                break;
+            }
+            default:
+                break;
+            }
+        }
+
+        window.clear();
+        window.draw(pointmap);
+
+        // window.draw(&pixels[0], pixels.size(), sf::Points, sf::RenderStates::Default);
+        // for (auto & px : pixels)
+        // {
+        //     window.draw(&px, (size_t)p, sf::Points, sf::RenderStates::Default);
+        //     std::cout << px.position.x;
+        // }
+    }
     return 0;
 }

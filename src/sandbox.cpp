@@ -8,15 +8,19 @@ CellData::CellData()
     type = AIR;
 }
 
-Sandbox::Sandbox()
+Sandbox::Sandbox() :
+color_buf{0}
 {
-    points = sf::VertexArray(sf::Points, SANDBOX_X * SANDBOX_Y);
     point_data = std::vector<CellData>(SANDBOX_X * SANDBOX_Y);
+
+    texture = sf::Texture();
+    texture.create(SANDBOX_X, SANDBOX_Y);
+
+    texture_rect = sf::RectangleShape(sf::Vector2f(SANDBOX_X, SANDBOX_Y));
+    texture_rect.setTexture(&texture);
 
     for (uint32_t i = 0; i < SANDBOX_X * SANDBOX_Y; i++)
     {
-        points[i].position = sf::Vector2f(i % SANDBOX_X, i / SANDBOX_X);
-
         point_data[i].type = i % 3 ? WATER : AIR;
     }
 }
@@ -88,18 +92,28 @@ void Sandbox::UpdatePointData()
         switch (point_data[i].type)
         {
         case AIR:
-            points[i].color = sf::Color::Black;
+            color_buf[i * 4] = 0x0;
+            color_buf[i * 4 + 1] = 0x0;
+            color_buf[i * 4 + 2] = 0x0;
+            color_buf[i * 4 + 3] = 0xFF;
             break;
         case SAND:
-            points[i].color = sf::Color::Yellow;
+            color_buf[i * 4] = 0xFF;
+            color_buf[i * 4 + 1] = 0xFF;
+            color_buf[i * 4 + 2] = 0x0;
+            color_buf[i * 4 + 3] = 0xFF;
             break;
         case WATER:
-            points[i].color = sf::Color::Blue;
+            color_buf[i * 4] = 0x0;
+            color_buf[i * 4 + 1] = 0x0;
+            color_buf[i * 4 + 2] = 0xFF;
+            color_buf[i * 4 + 3] = 0xFF;
             break;
         default:
             break;
         }
     }
+    texture.update(color_buf);
 }
 
 void Sandbox::fillCell(int x, int y, cell_t type)
@@ -113,5 +127,5 @@ void Sandbox::fillCell(int x, int y, cell_t type)
 
 void Sandbox::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
-    target.draw(points, states);
+    target.draw(texture_rect, states);
 }

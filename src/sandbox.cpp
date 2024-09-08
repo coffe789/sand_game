@@ -15,7 +15,7 @@ Sandbox::Sandbox()
 
     for (uint32_t i = 0; i < SANDBOX_X * SANDBOX_Y; i++)
     {
-        points[i].position = sf::Vector2f(i % 400, i / 400);
+        points[i].position = sf::Vector2f(i % SANDBOX_X, i / SANDBOX_X);
 
         point_data[i].type = i % 3 ? WATER : AIR;
     }
@@ -27,6 +27,8 @@ bool try_move_to(std::vector<CellData>& point_data, uint16_t x1, uint16_t y1, ui
     {
         return false;
     }
+    // Not validating x1 and y1 because we trust the user..
+
     if (point_data[x2 + y2 * SANDBOX_X].type < point_data[x1 + y1 * SANDBOX_X].type)
     {
         auto tmp = point_data[x1 + y1 * SANDBOX_X].type;
@@ -98,6 +100,15 @@ void Sandbox::UpdatePointData()
             break;
         }
     }
+}
+
+void Sandbox::fillCell(int x, int y, cell_t type)
+{
+    if (x < 0 || x >= SANDBOX_X || y < 0 || y >= SANDBOX_Y)
+    {
+        return;
+    }
+    point_data[x + y * SANDBOX_X].type = type;
 }
 
 void Sandbox::draw(sf::RenderTarget& target, sf::RenderStates states) const

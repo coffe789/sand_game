@@ -2,10 +2,30 @@
 #include "SFML/Graphics.hpp"
 #include "sandbox.h"
 
-void processInput(sf::RenderWindow &window, std::vector<CellData>& point_data)
+static void processMouseInput(sf::RenderWindow &window, Sandbox& sb)
 {
-    static bool mouse_pressed = false; // TODO let us hold down the mouse
+    static auto m_pos_prev = sf::Vector2(0, 0);
+    static auto m_pressed_prev = false;
 
+    auto m_pos = sf::Mouse::getPosition(window);
+    bool m_pressed = sf::Mouse::isButtonPressed(sf::Mouse::Left);
+
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+    {
+        sb.fillCell(m_pos.x, m_pos.y, SAND);
+    }
+
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
+    {
+        sb.fillCell(m_pos.x, m_pos.y, AIR);
+    }
+
+    m_pos_prev = m_pos;
+    m_pressed_prev = m_pressed;
+}
+
+void processInput(sf::RenderWindow &window, Sandbox& sb)
+{
     sf::Event event;
     while (window.pollEvent(event))
     {
@@ -19,15 +39,5 @@ void processInput(sf::RenderWindow &window, std::vector<CellData>& point_data)
         }
     }
 
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-    {
-        auto mp = sf::Mouse::getPosition(window);
-        point_data[mp.x + mp.y * SANDBOX_X].type = SAND;
-    }
-
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
-    {
-        const auto mp = sf::Mouse::getPosition(window);
-        point_data[mp.x + mp.y * SANDBOX_X].type = AIR;
-    }
+    processMouseInput(window, sb);
 }

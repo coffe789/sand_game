@@ -13,7 +13,7 @@ int main()
     sf::RenderWindow window(sf::VideoMode(WINDOW_X, WINDOW_Y), "Cells");
     auto sb = Sandbox();
 
-    window.setFramerateLimit(60);
+    // window.setFramerateLimit(60);
 
     float fps;
     sf::Clock clock = sf::Clock();
@@ -39,7 +39,7 @@ int main()
 
     while (window.isOpen())
     {
-        processInput(window, sb.point_data);
+        processInput(window, sb);
 
         // Update state
         sb.UpdatePointData();

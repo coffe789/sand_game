@@ -2,7 +2,7 @@
 #include "SFML/Graphics.hpp"
 #include "sandbox.h"
 
-void process_input(sf::RenderWindow &window, std::vector<CellData>& point_data)
+void processInput(sf::RenderWindow &window, std::vector<CellData>& point_data)
 {
     static bool mouse_pressed = false; // TODO let us hold down the mouse
 

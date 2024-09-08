@@ -13,7 +13,7 @@ int main()
     sf::RenderWindow window(sf::VideoMode(WINDOW_X, WINDOW_Y), "Cells");
     auto sb = Sandbox();
 
-    // window.setFramerateLimit(60);
+    window.setFramerateLimit(60);
 
     float fps;
     sf::Clock clock = sf::Clock();
@@ -33,14 +33,13 @@ int main()
         return 1;
     }
     text.setFont(font);
-    text.setString("Hello world");
     text.setCharacterSize(24);
     text.setFillColor(sf::Color::Red);
     text.setPosition(sf::Vector2f(10,10));
 
     while (window.isOpen())
     {
-        process_input(window, sb.point_data);
+        processInput(window, sb.point_data);
 
         // Update state
         sb.UpdatePointData();

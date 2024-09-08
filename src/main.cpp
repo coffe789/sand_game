@@ -1,3 +1,4 @@
+#include <cmath>
 #include <iostream>
 
 #include "SFML/Graphics.hpp"
@@ -10,7 +11,14 @@
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(WINDOW_X, WINDOW_Y), "Cells");
-    window.setFramerateLimit(60);
+    auto sb = Sandbox();
+
+    // window.setFramerateLimit(60);
+
+    float fps;
+    sf::Clock clock = sf::Clock();
+    sf::Time previousTime = clock.getElapsedTime();
+    sf::Time currentTime = clock.getElapsedTime();
 
     // TODO determine whether we really need a view
     // auto w_size = window.getSize();
@@ -27,12 +35,8 @@ int main()
     text.setFont(font);
     text.setString("Hello world");
     text.setCharacterSize(24);
-    text.setFillColor(sf::Color::White);
+    text.setFillColor(sf::Color::Red);
     text.setPosition(sf::Vector2f(10,10));
-
-    auto sb = Sandbox();
-
-    srand(clock());
 
     while (window.isOpen())
     {
@@ -40,6 +44,7 @@ int main()
 
         // Update state
         sb.UpdatePointData();
+        text.setString(std::to_string(std::floor(1.0f / (currentTime.asSeconds() - previousTime.asSeconds()))));
 
         // Draw state
         window.clear(sf::Color::Black);
@@ -47,6 +52,9 @@ int main()
         window.draw(text);
 
         window.display();
+
+        previousTime = currentTime;
+        currentTime = clock.getElapsedTime();
     }
     return 0;
 }

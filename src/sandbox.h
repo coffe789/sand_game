@@ -31,8 +31,9 @@ class Sandbox : public sf::Drawable
 public:
     Sandbox();
 
-    void UpdatePointData();
-    void fillCell(int x, int y, cell_t type);
+    inline void fillCell(uint32_t x, uint32_t y, cell_t type);
+    void paintCells(int32_t xc, int32_t yc, int32_t radius, cell_t type);
+    void update();
 
 private:
     std::vector<CellData> point_data;
@@ -41,6 +42,9 @@ private:
     uint8_t color_buf[SANDBOX_X * SANDBOX_Y * 4];
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+    void paintHorizontal(int32_t x1, int32_t x2, int32_t y, cell_t type);
+    void updatePointData();
+    void updateColorBuf();
 };
 
 

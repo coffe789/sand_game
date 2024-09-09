@@ -12,12 +12,12 @@ static void processMouseInput(sf::RenderWindow &window, Sandbox& sb)
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
-        sb.fillCell(m_pos.x, m_pos.y, SAND);
+        sb.paintCells(m_pos.x, m_pos.y, 10, SAND);
     }
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
     {
-        sb.fillCell(m_pos.x, m_pos.y, AIR);
+        sb.paintCells(m_pos.x, m_pos.y, 10, AIR);
     }
 
     m_pos_prev = m_pos;

@@ -42,7 +42,7 @@ int main()
         processInput(window, sb);
 
         // Update state
-        sb.UpdatePointData();
+        sb.update();
         text.setString(std::to_string(std::floor(1.0f / (currentTime.asSeconds() - previousTime.asSeconds()))));
 
         // Draw state

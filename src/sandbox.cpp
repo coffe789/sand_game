@@ -7,22 +7,6 @@
 
 #include "SFML/Graphics.hpp"
 
-CellMutData::CellMutData(cell_t cell_type = AIR) :
-checked {false}
-{
-    this->type = cell_type;
-    switch (this->type)
-    {
-    case WATER:
-        this->dir = (rand() & 1) ? sf::Vector2i(1, 0) : sf::Vector2i(-1, 0);
-        break;
-    case AIR:
-        break;
-    default:
-        break;
-    }
-}
-
 Sandbox::Sandbox() :
 color_buf {}, paint_state {.radius = 0, .type = SAND, .alt_type = AIR}
 {
@@ -68,34 +52,6 @@ bool try_move_to(std::vector<CellMutData>& point_data, uint16_t x1, uint16_t y1,
     return false;
 }
 
-inline void Sandbox::pointDataIterate(uint32_t x, uint32_t y)
-{
-    switch (point_data[x + y * SANDBOX_X].type)
-    {
-    case AIR:
-        break;
-    case SAND:
-        cellUpdate(point_data, x, y);
-        break;
-    case WATER:
-        assert(point_data[x + y * SANDBOX_X].dir.x != 0);
-
-        if (try_move_to(point_data, x, y, x, y + 1)) break; // Down
-        if (point_data[x + y * SANDBOX_X].dir.x == 1)
-        {
-            if (try_move_to(point_data, x, y, x + 1, y)) {break;}
-        } else
-        {
-            if (try_move_to(point_data, x, y, x - 1, y)) {break;}
-        }
-        // Couldn't go the direction we wanted, change direction
-        point_data[x + y * SANDBOX_X].dir.x *= - 1;
-        break;
-    default:
-        break;
-    }
-}
-
 void Sandbox::updatePointData()
 {
     for (auto y = SANDBOX_Y - 1; y >= 0; y--)
@@ -104,14 +60,14 @@ void Sandbox::updatePointData()
         {
             for (auto x = SANDBOX_X - 1; x >= 0; x--)
             {
-                pointDataIterate(x, y);
+                cellUpdate(point_data, x, y);
             }
         }
         else
         {
             for (auto x = 0; x < SANDBOX_X; x++)
             {
-                pointDataIterate(x, y);
+                cellUpdate(point_data, x, y);
             }
         }
     }
@@ -127,35 +83,7 @@ void Sandbox::updateColorBuf()
 {
     for (auto i = 0; i < SANDBOX_X * SANDBOX_Y; i++)
     {
-        switch (point_data[i].type)
-        {
-        case AIR:
-            color_buf[i * 4] = 0x0;
-            color_buf[i * 4 + 1] = 0x0;
-            color_buf[i * 4 + 2] = 0x0;
-            color_buf[i * 4 + 3] = 0xFF;
-            break;
-        case SAND:
-            color_buf[i * 4] = 0xFF;
-            color_buf[i * 4 + 1] = 0xFF;
-            color_buf[i * 4 + 2] = 0x0;
-            color_buf[i * 4 + 3] = 0xFF;
-            break;
-        case WATER:
-            color_buf[i * 4] = 0x0;
-            color_buf[i * 4 + 1] = 0x0;
-            color_buf[i * 4 + 2] = 0xFF;
-            color_buf[i * 4 + 3] = 0xFF;
-            break;
-        case WALL:
-            color_buf[i * 4] = 0xBB;
-            color_buf[i * 4 + 1] = 0xBB;
-            color_buf[i * 4 + 2] = 0xBB;
-            color_buf[i * 4 + 3] = 0xBB;
-            break;
-        default:
-            break;
-        }
+        memcpy(color_buf + i * 4, &point_data[i].color, 4);
     }
     texture.update(color_buf);
 }

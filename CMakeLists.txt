@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(CMakeSFMLProject LANGUAGES CXX)
+project(SandGame LANGUAGES CXX)
 
 set(CMAKE_EXE_LINKER_FLAGS "-static")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -21,6 +21,8 @@ add_executable(main src/main.cpp
         src/cell.h
         src/cells/sand_cell.cpp
         src/cells/sand_cell.h
+        src/cells/water_cell.cpp
+        src/cells/water_cell.h
 )
 target_link_libraries(main PRIVATE sfml-graphics)
 target_compile_features(main PRIVATE cxx_std_17)

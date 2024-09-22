@@ -1,7 +1,7 @@
 #ifndef SANDBOX_H
 #define SANDBOX_H
 
-#define SANDBOX_X 256
+#define SANDBOX_X 300
 #define SANDBOX_Y 256
 
 #include <cstdint>
@@ -46,6 +46,5 @@ private:
     void updateColorBuf();
     inline void pointDataIterate(uint32_t x, uint32_t y);
 };
-
 
 #endif //SANDBOX_H

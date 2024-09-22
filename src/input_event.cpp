@@ -5,6 +5,7 @@
 
 static void processMouseInput(sf::RenderWindow &window, Sandbox& sb)
 {
+    // TODO use these to draw lines rather than circles
     static auto m_pos_prev = sf::Vector2i(0, 0);
     static auto m_pressed_prev = false;
 
@@ -52,7 +53,7 @@ void processInput(sf::RenderWindow &window, Sandbox& sb)
             case sf::Keyboard::Num6:
             case sf::Keyboard::Num7:
             case sf::Keyboard::Num8:
-        case sf::Keyboard::Num9:
+            case sf::Keyboard::Num9:
                 sb.updatePaintType(static_cast<cell_t>(event.key.code - sf::Keyboard::Num0));
                 break;
             }

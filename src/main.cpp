@@ -13,7 +13,7 @@ int main()
     sf::RenderWindow window(sf::VideoMode(WINDOW_X, WINDOW_Y), "Cells");
     auto sb = Sandbox();
 
-    // window.setFramerateLimit(60);
+    window.setFramerateLimit(60);
 
     float fps;
     sf::Clock clock = sf::Clock();

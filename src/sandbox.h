@@ -1,8 +1,8 @@
 #ifndef SANDBOX_H
 #define SANDBOX_H
 
-#define SANDBOX_X 400
-#define SANDBOX_Y 400
+#define SANDBOX_X 256
+#define SANDBOX_Y 256
 
 #include <cstdint>
 
@@ -10,19 +10,14 @@
 #include "SFML/Graphics/Texture.hpp"
 #include "SFML/Graphics/VertexArray.hpp"
 
-typedef enum
-{
-    AIR,
-    WATER,
-    SAND,
-} cell_t;
+#include "cell.h"
 
-class CellData
+typedef struct
 {
-public:
+    int32_t radius;
     cell_t type;
-    CellData();
-};
+    cell_t alt_type;
+} paint_state_t;
 
 bool try_move_to(std::vector<CellData>& point_data, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
 
@@ -32,7 +27,10 @@ public:
     Sandbox();
 
     inline void fillCell(uint32_t x, uint32_t y, cell_t type);
+    void paintCells(int32_t xc, int32_t yc, bool alt);
     void paintCells(int32_t xc, int32_t yc, int32_t radius, cell_t type);
+    void updatePaintRadius(float delta);
+    void updatePaintType(cell_t type);
     void update();
 
 private:
@@ -40,11 +38,13 @@ private:
     sf::Texture texture;
     sf::RectangleShape texture_rect;
     uint8_t color_buf[SANDBOX_X * SANDBOX_Y * 4];
+    paint_state_t paint_state;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     void paintHorizontal(int32_t x1, int32_t x2, int32_t y, cell_t type);
     void updatePointData();
     void updateColorBuf();
+    inline void pointDataIterate(uint32_t x, uint32_t y);
 };
 
 

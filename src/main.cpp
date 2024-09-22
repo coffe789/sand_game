@@ -5,8 +5,8 @@
 #include "input_event.h"
 #include "sandbox.h"
 
-#define WINDOW_X 800
-#define WINDOW_Y 480
+#define WINDOW_X 1920
+#define WINDOW_Y 1080
 
 int main()
 {
@@ -21,10 +21,9 @@ int main()
     sf::Time currentTime = clock.getElapsedTime();
 
     // TODO determine whether we really need a view
-    // auto w_size = window.getSize();
-    // sf::View view(sf::Vector2f(w_size.x / 2, w_size.y / 2), sf::Vector2f(w_size.x, w_size.y));
-    // view.setViewport(sf::FloatRect(0.05f, 0.05f, 1.0f, 1.0f));
-    // window.setView(view);
+    auto w_size = window.getSize();
+    sf::View view(sf::Vector2f(w_size.x / 2, w_size.y / 2), sf::Vector2f(w_size.x, w_size.y));
+    view.setViewport(sf::FloatRect(0.05f, 0.05f, 3.0f, 3.0f));
 
     sf::Font font;
     sf::Text text;
@@ -33,12 +32,14 @@ int main()
         return 1;
     }
     text.setFont(font);
-    text.setCharacterSize(24);
+    text.setCharacterSize(48);
     text.setFillColor(sf::Color::Red);
     text.setPosition(sf::Vector2f(10,10));
 
     while (window.isOpen())
     {
+        window.setView(view);
+
         processInput(window, sb);
 
         // Update state
@@ -48,6 +49,8 @@ int main()
         // Draw state
         window.clear(sf::Color::Black);
         window.draw(sb);
+
+        window.setView(window.getDefaultView());
         window.draw(text);
 
         window.display();

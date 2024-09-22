@@ -17,8 +17,9 @@ add_executable(main src/main.cpp
         src/input_event.h
         src/sandbox.cpp
         src/sandbox.h
-        src/Painter.cpp
-        src/Painter.h)
+        src/cell.cpp
+        src/cell.h
+)
 target_link_libraries(main PRIVATE sfml-graphics)
 target_compile_features(main PRIVATE cxx_std_17)
 

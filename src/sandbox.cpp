@@ -1,17 +1,30 @@
 #include <cstdint>
 #include "sandbox.h"
 
+#include <cassert>
 #include <iostream>
+#include <random>
 
 #include "SFML/Graphics.hpp"
 
-CellData::CellData()
+CellData::CellData(cell_t cell_type = AIR) :
+checked {false}
 {
-    type = AIR;
+    this->type = cell_type;
+    switch (this->type)
+    {
+    case WATER:
+        this->dir = (rand() & 1) ? sf::Vector2i(1, 0) : sf::Vector2i(-1, 0);
+        break;
+    case AIR:
+        break;
+    default:
+        break;
+    }
 }
 
 Sandbox::Sandbox() :
-color_buf{}
+color_buf {}, paint_state {.radius = 0, .type = SAND, .alt_type = AIR}
 {
     point_data = std::vector<CellData>(SANDBOX_X * SANDBOX_Y);
 
@@ -21,9 +34,9 @@ color_buf{}
     texture_rect = sf::RectangleShape(sf::Vector2f(SANDBOX_X, SANDBOX_Y));
     texture_rect.setTexture(&texture);
 
-    for (uint32_t i = 0; i < point_data.size(); i++)
+    for (auto i = 0; i < point_data.size(); i++)
     {
-        point_data[i].type = i % 3 ? AIR : WATER;
+        point_data[i] = CellData(AIR);
     }
 }
 
@@ -33,62 +46,90 @@ bool try_move_to(std::vector<CellData>& point_data, uint16_t x1, uint16_t y1, ui
     {
         return false;
     }
-    // Not validating x1 and y1 because we trust the user..
+
+    assert(!(x1 < 0 || x1 >= SANDBOX_X || y1 < 0 || y1 >= SANDBOX_Y));
+    assert(abs(x1-x2) <= 1 && abs(y1-y2) <= 1);
+
+    if (point_data[x1 + y1 * SANDBOX_X].checked)
+    {
+        return false;
+    }
 
     if (point_data[x2 + y2 * SANDBOX_X].type < point_data[x1 + y1 * SANDBOX_X].type)
     {
-        auto tmp = point_data[x1 + y1 * SANDBOX_X].type;
-        point_data[x1 + y1 * SANDBOX_X].type = point_data[x2 + y2 * SANDBOX_X].type;
-        point_data[x2 + y2 * SANDBOX_X].type = tmp;
+        point_data[x2 + y2 * SANDBOX_X].checked = true;
+        point_data[x1 + y1 * SANDBOX_X].checked = true;
+
+        auto tmp = point_data[x1 + y1 * SANDBOX_X];
+        point_data[x1 + y1 * SANDBOX_X] = point_data[x2 + y2 * SANDBOX_X];
+        point_data[x2 + y2 * SANDBOX_X] = tmp;
         return true;
     }
     return false;
+}
+
+inline void Sandbox::pointDataIterate(uint32_t x, uint32_t y)
+{
+    switch (point_data[x + y * SANDBOX_X].type)
+    {
+    case AIR:
+        break;
+    case SAND:
+        if (try_move_to(point_data, x, y, x + 0, y + 1)) break;
+        if (rand() % 2 == 0)
+        {
+            if (try_move_to(point_data, x, y, x + 1, y + 1)) break;
+            if (try_move_to(point_data, x, y, x - 1, y + 1)) break;
+        } else
+        {
+            if (try_move_to(point_data, x, y, x - 1, y + 1)) break;
+            if (try_move_to(point_data, x, y, x + 1, y + 1)) break;
+        }
+        break;
+    case WATER:
+        assert(point_data[x + y * SANDBOX_X].dir.x != 0);
+
+        if (try_move_to(point_data, x, y, x, y + 1)) break; // Down
+        if (point_data[x + y * SANDBOX_X].dir.x == 1)
+        {
+            if (try_move_to(point_data, x, y, x + 1, y)) {break;}
+        } else
+        {
+            if (try_move_to(point_data, x, y, x - 1, y)) {break;}
+        }
+        // Couldn't go the direction we wanted, change direction
+        point_data[x + y * SANDBOX_X].dir.x *= - 1;
+        break;
+    default:
+        break;
+    }
 }
 
 void Sandbox::updatePointData()
 {
     for (auto y = SANDBOX_Y - 1; y >= 0; y--)
     {
-        for (auto x = SANDBOX_X - 1; x >= 0; x--)
+        if (rand() & 1)
         {
-            switch (point_data[x + y * SANDBOX_X].type)
+            for (auto x = SANDBOX_X - 1; x >= 0; x--)
             {
-            case AIR:
-                break;
-            case SAND:
-                if (try_move_to(point_data, x, y, x + 0, y + 1)) break;
-                if (rand() % 2)
-                {
-                    if (try_move_to(point_data, x, y, x + 1, y + 1)) break;
-                    if (try_move_to(point_data, x, y, x - 1, y + 1)) break;
-                } else
-                {
-                    if (try_move_to(point_data, x, y, x - 1, y + 1)) break;
-                    if (try_move_to(point_data, x, y, x + 1, y + 1)) break;
-                }
-                break;
-            case WATER:
-                if (try_move_to(point_data, x, y, x + 0, y + 1)) break;
-                if (rand() % 2)
-                {
-                    if (try_move_to(point_data, x, y, x + 1, y + 1)) break;
-                    if (try_move_to(point_data, x, y, x - 1, y + 1)) break;
-                    if (try_move_to(point_data, x, y, x + 1, y + 0)) break;
-                    if (try_move_to(point_data, x, y, x - 1, y + 0)) break;
-                } else
-                {
-                    if (try_move_to(point_data, x, y, x - 1, y + 1)) break;
-                    if (try_move_to(point_data, x, y, x + 1, y + 1)) break;
-                    if (try_move_to(point_data, x, y, x - 1, y + 0)) break;
-                    if (try_move_to(point_data, x, y, x + 1, y + 0)) break;
-                }
-                break;
-            default:
-                break;
+                pointDataIterate(x, y);
+            }
+        }
+        else
+        {
+            for (auto x = 0; x < SANDBOX_X; x++)
+            {
+                pointDataIterate(x, y);
             }
         }
     }
 
+    // Unset checked for next pass
+    for (auto &cdata : point_data)
+    {
+        cdata.checked = false;
+    }
 }
 
 void Sandbox::updateColorBuf()
@@ -115,6 +156,12 @@ void Sandbox::updateColorBuf()
             color_buf[i * 4 + 2] = 0xFF;
             color_buf[i * 4 + 3] = 0xFF;
             break;
+        case WALL:
+            color_buf[i * 4] = 0xBB;
+            color_buf[i * 4 + 1] = 0xBB;
+            color_buf[i * 4 + 2] = 0xBB;
+            color_buf[i * 4 + 3] = 0xBB;
+            break;
         default:
             break;
         }
@@ -134,7 +181,8 @@ inline void Sandbox::fillCell(uint32_t x, uint32_t y, cell_t type)
     {
         return;
     }
-    point_data[x + y * SANDBOX_X].type = type;
+
+    point_data[x + y * SANDBOX_X] = CellData(type);
 }
 
 // Helper function for paintCells
@@ -171,7 +219,38 @@ void Sandbox::paintCells(int32_t xc, int32_t yc, int32_t radius, cell_t type)
     }
 }
 
+void Sandbox::paintCells(int32_t xc, int32_t yc, bool alt)
+{
+    if (alt)
+    {
+        paintCells(xc, yc, paint_state.radius, paint_state.alt_type);
+    } else
+    {
+        paintCells(xc, yc, paint_state.radius, paint_state.type);
+    }
+}
+
 void Sandbox::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     target.draw(texture_rect, states);
+}
+
+void Sandbox::updatePaintRadius(float delta)
+{
+    if (delta > 0.0)
+    {
+        paint_state.radius = std::min(paint_state.radius + 1.0f, 20.0f);
+    } else if (delta < 0.0)
+    {
+        paint_state.radius = std::max(paint_state.radius - 1.0f, 0.0f);
+    }
+}
+
+void Sandbox::updatePaintType(cell_t type)
+{
+    if (type >= CELL_COUNT)
+    {
+        return;
+    }
+    paint_state.type = type;
 }

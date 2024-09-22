@@ -19,7 +19,7 @@ typedef struct
     cell_t alt_type;
 } paint_state_t;
 
-bool try_move_to(std::vector<CellData>& point_data, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+bool try_move_to(std::vector<CellMutData>& point_data, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
 
 class Sandbox : public sf::Drawable
 {
@@ -34,7 +34,7 @@ public:
     void update();
 
 private:
-    std::vector<CellData> point_data;
+    std::vector<CellMutData> point_data;
     sf::Texture texture;
     sf::RectangleShape texture_rect;
     uint8_t color_buf[SANDBOX_X * SANDBOX_Y * 4];

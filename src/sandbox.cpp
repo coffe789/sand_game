@@ -7,7 +7,7 @@
 
 #include "SFML/Graphics.hpp"
 
-CellData::CellData(cell_t cell_type = AIR) :
+CellMutData::CellMutData(cell_t cell_type = AIR) :
 checked {false}
 {
     this->type = cell_type;
@@ -26,7 +26,7 @@ checked {false}
 Sandbox::Sandbox() :
 color_buf {}, paint_state {.radius = 0, .type = SAND, .alt_type = AIR}
 {
-    point_data = std::vector<CellData>(SANDBOX_X * SANDBOX_Y);
+    point_data = std::vector<CellMutData>(SANDBOX_X * SANDBOX_Y);
 
     texture = sf::Texture();
     texture.create(SANDBOX_X, SANDBOX_Y);
@@ -36,11 +36,11 @@ color_buf {}, paint_state {.radius = 0, .type = SAND, .alt_type = AIR}
 
     for (auto i = 0; i < point_data.size(); i++)
     {
-        point_data[i] = CellData(AIR);
+        point_data[i] = CellMutData(AIR);
     }
 }
 
-bool try_move_to(std::vector<CellData>& point_data, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
+bool try_move_to(std::vector<CellMutData>& point_data, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 {
     if (x2 < 0 || x2 >= SANDBOX_X || y2 < 0 || y2 >= SANDBOX_Y)
     {
@@ -75,16 +75,7 @@ inline void Sandbox::pointDataIterate(uint32_t x, uint32_t y)
     case AIR:
         break;
     case SAND:
-        if (try_move_to(point_data, x, y, x + 0, y + 1)) break;
-        if (rand() % 2 == 0)
-        {
-            if (try_move_to(point_data, x, y, x + 1, y + 1)) break;
-            if (try_move_to(point_data, x, y, x - 1, y + 1)) break;
-        } else
-        {
-            if (try_move_to(point_data, x, y, x - 1, y + 1)) break;
-            if (try_move_to(point_data, x, y, x + 1, y + 1)) break;
-        }
+        cellUpdate(point_data, x, y);
         break;
     case WATER:
         assert(point_data[x + y * SANDBOX_X].dir.x != 0);
@@ -182,7 +173,7 @@ inline void Sandbox::fillCell(uint32_t x, uint32_t y, cell_t type)
         return;
     }
 
-    point_data[x + y * SANDBOX_X] = CellData(type);
+    point_data[x + y * SANDBOX_X] = CellMutData(type);
 }
 
 // Helper function for paintCells

@@ -19,6 +19,8 @@ add_executable(main src/main.cpp
         src/sandbox.h
         src/cell.cpp
         src/cell.h
+        src/cells/sand_cell.cpp
+        src/cells/sand_cell.h
 )
 target_link_libraries(main PRIVATE sfml-graphics)
 target_compile_features(main PRIVATE cxx_std_17)
